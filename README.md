@@ -142,7 +142,7 @@ For each index, the system calculates the Irregularity Score using the ratio of 
 
 $$Variance (\sigma^2) = \frac{\sum_{i=0}^{N} (A_i - \mu)^2}{N}$$
 
-$$Irregularity Index = \frac{\sqrt{\sigma^2}}{\mu}$$
+$$\text{Irregularity Index} = \frac{\sqrt{\sigma^2}}{\mu}$$
 
 This statistical approach normalizes signal noise against the user's current activity level. The three indices are:
 
@@ -155,7 +155,7 @@ This statistical approach normalizes signal noise against the user's current act
 # 2. Context-Aware Gain Scheduling (Barometric Control Loop)
 To prevent false positives on different terrains, the system uses a **Barometric Pressure Sensor** as a "State Controller."
 
-* **Terrain State Determination:** The system calculates the rate of altitude change over time ($\frac{dAlt}{dt}$) to classify the user's kinetic state into **ASCENT**, **DESCENT**, or **FLAT_PLATEAU**.
+* **Terrain State Determination:** The system calculates the rate of altitude change over time to classify the user's kinetic state into **ASCENT**, **DESCENT**, or **FLAT_PLATEAU**.
 * **Variable Gain Assignment:** Based on the identified state, the system dynamically re-weights the importance of each index ($K$ variables).
     * **Ascent State:** The system **attenuates** $K_{energy}$ (to ignore the high exertion noise of climbing) and **amplifies** $K_{stability}$ (to prioritize balance detection).
     * **Flat State:** The system **amplifies** $K_{step}$ to detect subtle "foot drag" anomalies or micro-stumbles that are indicative of early-onset ataxia.
@@ -176,8 +176,6 @@ Under normal conditions, the OLED screen cycles through data periodically:
 ### Emergency Intervention
 If the AMS Score exceeds the calibrated **Critical Threshold**, the system triggers the **EMERGENCY Protocol**:
 * **Visual:** The screen overrides the cycle to flash **"EMERGENCY! DESCEND DOWN"** along with the current Score.
-* **Auditory:** The Buzzer activates a continuous alarm pattern.
-* **Haptic:** (If equipped) Vibration motors pulse the "SOS" pattern.
 
 ---
 
