@@ -242,7 +242,7 @@ void setup() {
     if (gestureFound) {
         Serial.println("APDS9960 init completed");
         // Enable Gesture (Passed true instead of DISABLE to actually run it)
-        if(Lpg.enableGestureSensor(true)) {
+        if(Lpg.enableGestureSensor(ENABLE)) {
             Serial.println("Gesture sensor running");
         } else {
             Serial.println("Gesture sensor init failed!");
