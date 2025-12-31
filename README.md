@@ -4,7 +4,10 @@
 
 S.H.E.R.P.A. is a lumbar-mounted wearable utilizing context-aware sensor fusion to detect early markers of Acute Mountain Sickness (AMS), distinguishing healthy exertion from pathological instability (Ataxia) in real-time without cloud reliance.
 
-[!P1](link)
+<p align="center">
+<img src="https://raw.githubusercontent.com/NavyStudent2893/S.H.E.R.P.A./refs/heads/patch-1/gait.jpg" width="800"><br/>
+<i>Project S.H.E.R.P.A</i>
+</p>
 
 **Tags:** `embedded-systems` `esp32` `sensor-fusion` `wearable-technology` `edge-computing` `gait-analysis` `acute-mountain-sickness`
 ---
@@ -17,12 +20,41 @@ S.H.E.R.P.A. is a lumbar-mounted wearable utilizing context-aware sensor fusion 
 ## Acknowledgements
 
 ## Overview
+**S.H.E.R.P.A.** (Smart High-altitude Emergency Response & Pathological Analysis) is a context-aware, edge-computing wearable designed to detect the physiological precursors of **Acute Mountain Sickness (AMS)** and **High Altitude Cerebral Edema (HACE)** in real-time.
+
+Operating in RF-denied environments ("The Death Zone"), the device decouples healthy physical exertion from pathological instability, providing a safety net when the user's own brain fails to recognize distress.
+
+### The Core Problem: The "Silent" Threat
+Mountaineers often suffer from **Hypoxic Anosognosia**—a cognitive dissonance where the brain fails to self-diagnose oxygen deprivation. This leads to the "Happy Hypoxic" effect, where a climber feels confident right up until the moment of **Ataxia** (motor failure) and collapse.
+
+Existing wrist-based wearables fail to detect this because of two critical flaws:
+1.  **The Extremity Problem:** Wrist sensors are overwhelmed by "kinetic noise" from trekking poles and arm swings, masking the subtle Center of Mass (CoM) deviations that indicate a fall risk.
+2.  **The Terrain Paradox:** Standard algorithms confuse the high-energy exertion of a steep climb with the erratic stumbling of distress, leading to false positives and alarm fatigue.
+
+### The Solution: Context-Aware Lumbar Sensing
+S.H.E.R.P.A. solves these challenges through a novel hardware-software architecture:
+* **L3 Vertebrae Placement:** By mounting on the **Posterior Waist Belt**, the sensor couples directly to the body's Center of Mass, mechanically filtering out limb artifacts.
+* **Barometric "Supervisor":** A dedicated control loop uses vertical velocity ($dP/dt$) to identify terrain context (Ascent vs. Descent). It dynamically adjusts the sensitivity of the gait analysis algorithms—attenuating exertion noise during climbs and amplifying sway detection during flat traverses.
+* **Zero-Latency Edge Computing:** Powered by an **ESP32**, all processing occurs locally on the device, ensuring immediate haptic intervention without reliance on GPS or cloud connectivity.
 
 ## Demo / Examples
 
 ### Images
+<p align="center">
+<img src="https://raw.githubusercontent.com/NavyStudent2893/S.H.E.R.P.A./refs/heads/patch-1/Index.jpg" width="800"><br/>
+<i>Energy Index on Display</i>
+</p>
+<p align="center">
+<img src="https://raw.githubusercontent.com/NavyStudent2893/S.H.E.R.P.A./refs/heads/patch-1/circuit_Sherpa.jpg" width="800"><br/>
+<i>Circuit Diagram</i>
+</p>
+
+
 
 ### Videos
+<video controls width="100%">
+<source src="/your-video-name.mp4" type="video/mp4">
+</video>
 
 ##  Key Features & Capabilities
 
@@ -72,7 +104,7 @@ Upon startup, the screen will display `CALIBRATING...`.
     * **Action:** Wave your hand (even with thick gloves) within **5cm** of the Proximity Sensor to temporarily silence the buzzer.
 
 ## Tech Stack
-## 🛠️ Tech Stack & System Architecture
+##  Tech Stack & System Architecture
 
 ### 1. Hardware Layer (The Edge Node)
 Designed for autonomous operation in **RF-denied environments** (via local Edge Computing) and optimized for **high-fidelity stability analysis**
@@ -113,9 +145,38 @@ The core logic implements a **Context-Aware Sensor Fusion** model that moves bey
  
 
 ## Requirements / Installation
+## 📦 Requirements & Dependencies
 
-## File Structure (Optional)
+This project consists of two parts: the **Firmware** (running on the ESP32) and the **Visualization Dashboard** (running on a PC).
 
-## License (Optional)
+### 1. Firmware Libraries (C++ / Arduino IDE)
+To compile the code for the ESP32, you must install the following libraries via the Arduino Library Manager or by importing the `.zip` files manually:
 
-## Contribution Notes (Optional)
+* **Communication & Core:**
+    * `Wire.h` (Standard Arduino I²C)
+    * `I2Cdev` (i2cdevlib)
+* **Sensors (IMU & Altimeter):**
+    * `MPU6050 MotionApps 2.0` (DMP implementation)
+    * `Adafruit BMP085 / BMP180 Library`
+* **Display (OLED):**
+    * `Adafruit GFX Library`
+    * `Adafruit SSD1306`
+
+> **Note:** The `MPU6050 MotionApps` and `I2Cdev` libraries often require manual installation. Ensure you use the versions compatible with ESP32 (Jeff Rowberg's `i2cdevlib` is recommended).
+
+---
+
+### 2. Python Dependencies (Live Dashboard & Analysis)
+To run the **Live Telemetry Dashboard** or perform post-trek data analysis, you need the following Python libraries installed on your computer:
+
+* **`pyserial`**: Reads live data streams from the ESP32 via USB.
+* **`matplotlib`**: Plots real-time graphs for Rhythm, Energy, and Sway indices.
+* **`pandas`**: Structures sensor logs into DataFrames for analysis.
+* **`numpy`**: Handles statistical variance calculations.
+
+**Quick Install:**
+```bash
+pip install numpy pandas matplotlib pyserial
+```
+
+
