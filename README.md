@@ -2,7 +2,9 @@
 
 # Project S.H.E.R.P.A (Version L.U.M.B.A.R)
 
-S.H.E.R.P.A. is a lumbar-mounted wearable utilizing context-aware sensor fusion to detect early markers of Acute Mountain Sickness (AMS), distinguishing healthy exertion from pathological instability (Ataxia) in real-time without cloud reliance.
+S.H.E.R.P.A is a lumbar-mounted wearable utilizing context-aware sensor fusion to detect early markers of Acute Mountain Sickness (AMS), distinguishing healthy exertion from pathological instability (Ataxia) in real-time without cloud reliance.
+
+In essence this is A Surveillance for High-altitude Effects on Reflexes, Performance & Awareness using Local Unit for Monitoring Balance, Altitude and Rhythm. (SHERPA LUMBAR)
 
 [!P1](link)
 
