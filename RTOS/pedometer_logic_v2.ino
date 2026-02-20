@@ -1,15 +1,42 @@
 /*
- * =======================================================================================
+ * ---------------------------------------------------------------------------------------
  * PROJECT S.H.E.R.P.A. 
  * (Smart High-Altitude Emergency Response & Positioning Assistant)
- * =======================================================================================
+ * 
+ * 
  * * SYSTEM DESCRIPTION:
  * S.H.E.R.P.A. is a lumbar-mounted wearable utilizing context-aware sensor fusion to 
- * detect early markers of Acute Mountain Sickness (AMS). 
+ * detect early markers of Acute Mountain Sickness (AMS). The system distinguishes 
+ * healthy physical exertion from pathological instability (Ataxia) in real-time
+ * completely at the edge, without cloud reliance.
+
  *
- * RTOS VERSION: 2.2 (DMP Fusion + Rhythm Analysis + FreeRTOS Multitasking)
- * =======================================================================================
+ * MODULE PURPOSE:
+ * [UNIT TEST] Pedometer & Gait Irregularity Analyzer
+ * This module tests the core step-detection engine using DMP Sensor Fusion. It 
+ * calculates the "Irregularity Index" (Step Jitter) to quantify walking rhythm 
+ * stability, a key metric for detecting the onset of AMS-induced ataxia.
+ *
+
+ * HARDWARE CONFIGURATION:
+ * - Platform: MyoSa Mini Kit
+ * - MCU: ESP32 (WROOM-32)
+ * - IMU: MPU6050 (Address 0x69)
+ * - Display: SSD1306 OLED (I2C)
+ *
+
+ * ---------------------------------------------------------------------------------------
+ * TEAM MEMBERS & ROLES:
+ * 1. Affan Danish    | Lead Firmware Architect
+ * 2. Zahaib          | Project Specialist
+ * 3. Ammar           | Systems Engineer
+ * 4. Maaz            | project design
+ * ---------------------------------------------------------------------------------------
+ *
+ * RTOS PORT - VERSION 2.4 (DMP Fusion + Rhythm Analysis + FreeRTOS)
  */
+
+
  
 #include "I2Cdev.h"
 #include "MPU6050_6Axis_MotionApps20.h"
