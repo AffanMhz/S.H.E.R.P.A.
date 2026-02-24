@@ -136,7 +136,18 @@ unsigned long buzzerTimer = 0;
 bool buzzerState = false;
 int alertReason = 0; // 0: None, 1: Sway, 2: Irregularity, 3: Rapid Steps (Burst)
 #define ALERT_DURATION_MS 3000  // How long the alert lasts after trigger
-#define RHYTHM_IRREG_LIMIT 0.30 // 30% irregularity triggers alert
+
+
+// =================== ONLY MODIFIED VARIABLES SECTION ===================
+
+// OLD:
+// #define RHYTHM_IRREG_LIMIT 0.30
+
+#define RHYTHM_IRREG_LIMIT 0.45   // Increased threshold (less sensitive)
+#define IRREGULAR_STEPS_REQUIRED 3
+#define MIN_STEPS_BEFORE_ALERT 6
+
+int irregularStepCounter = 0;
 
 //  CODE 1: RHYTHM VARIABLES 
 #define COMPOSITE_THRESHOLD 12000
@@ -206,6 +217,8 @@ void setup() {
     if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
         for(;;);
     }
+
+    showBootAnimation();
 
     // --- INIT SENSORS SCREEN ---
     display.clearDisplay();
@@ -485,10 +498,24 @@ void loop() {
                 triggerNow = true;
                 alertReason = 3;
             }
-            else if (newStepDetected && energyIrregularity > RHYTHM_IRREG_LIMIT) {
-                triggerNow = true;
-                alertReason = 2;
-            }
+            else if (newStepDetected) {
+
+                        // Ignore early unstable walking phase
+                        if (stepCount > MIN_STEPS_BEFORE_ALERT) {
+
+                            if (energyIrregularity > RHYTHM_IRREG_LIMIT) {
+                                irregularStepCounter++;
+                            } else {
+                                irregularStepCounter = 0;
+                            }
+
+                            if (irregularStepCounter >= IRREGULAR_STEPS_REQUIRED) {
+                                triggerNow = true;
+                                alertReason = 2;
+                                irregularStepCounter = 0; // Reset after trigger
+                            }
+                        }
+                    }
         }
 
         if (triggerNow) {
@@ -653,4 +680,42 @@ void drawAlertScreen() {
     if(buzzerState) display.print(F("(BEEP)"));
 
     display.display();
+}
+
+
+void showBootAnimation() {
+
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+
+  // Top and Bottom Lines
+  display.drawLine(0, 6, 127, 6, WHITE);
+  display.drawLine(0, 58, 127, 58, WHITE);
+  display.display();
+  delay(400);
+
+  // MYOSA (Competition Name)
+  display.setTextSize(1);
+  display.setCursor(44, 16);
+  display.print("MYOSA");
+  display.display();
+  delay(800);
+
+  // SHERPA (Main Identity)
+  display.setTextSize(3);
+  display.setCursor(14, 26);
+  display.print("SHERPA");
+  display.display();
+  delay(400);
+
+  // Subtitle
+  display.setTextSize(1);
+  display.setCursor(8, 48);
+  display.print("PROJECT S.H.E.R.P.A.");
+  display.display();
+
+  delay(3000);  // Hold screen
+
+  display.clearDisplay();
+  display.display();
 }
