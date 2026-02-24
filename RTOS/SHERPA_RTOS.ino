@@ -1,24 +1,98 @@
 /*
-  Project:        S.H.E.R.P.A. (Smart High-altitude Early Risk Prediction Assistant)
-  Team:           Hardcoders
-  Author:         Affan Danish
-  Platform:       MYOSA (MakeSense EduTech / Pegasus Automation)
+ * ======================================================================================
+ * Project:        S.H.E.R.P.A. (Smart High-altitude Early Risk Prediction Assistant)
+ * ======================================================================================
+ * Team:           Hardcoders
+ * ---------------------------------------------------------------------------------------
+ * TEAM MEMBERS & ROLES:
+ * 1. Affan Danish    | Lead Firmware Architect
+ * 2. Zahaib          | Project Specialist
+ * 3. Ammar           | Systems Engineer
+ * 4. Maaz            | Project Design
+ * ---------------------------------------------------------------------------------------
+ * Platform:       MYOSA (MakeSense EduTech / Pegasus Automation)
+ * Component:      Multisensor Monitoring & Early-Risk Alert System (FreeRTOS Edition)
+ * Focus:          Gait irregularity, sway detection, ascent profiling,
+ *                 and contextual alerts related to Acute Mountain Sickness (AMS)
+ * ======================================================================================
+ *
+ * ── HARDWARE & INTERFACES (MYOSA PLATFORM) ───────────────────────────────────────────
+ *
+ *  IMU Sensor:     MPU6050 (6-DOF Accelerometer + Gyroscope)
+ *                  I2C Address : 0x69
+ *
+ *  Barometric:     BMP180 (Bosch Barometric Pressure Sensor)
+ *                  I2C Address : 0x77
+ *                  Pressure Range : 300–1100 hPa
+ *                  Resolution     : ~0.25 m altitude
+ *
+ *  Display:        SSD1306 OLED Display (128×64)
+ *                  I2C Address : 0x3C
+ *
+ *  Gesture Sensor: APDS9960 (Gesture / Proximity / Light)
+ *                  I2C Address : 0x39
+ *
+ *  Alert Output:   Active Buzzer (GPIO-controlled)
+ *
+ * ── SYSTEM PURPOSE ───────────────────────────────────────────────────────────────────
+ *
+ *  S.H.E.R.P.A. is a wearable, real-time multisensor system designed to provide
+ *  early, objective indicators associated with altitude stress and movement
+ *  instability during high-altitude ascent.
+ *
+ *  The system combines:
+ *    - Barometric ascent rate & relative altitude tracking
+ *    - Step rhythm and energy irregularity analysis
+ *    - Roll-based sway detection with gyro confirmation
+ *    - Context-aware alerting with visual and auditory feedback
+ *
+ *  The goal is not medical diagnosis, but early risk awareness to support timely
+ *  decisions such as rest, pace adjustment, or descent.
+ *
+ * ── SCIENTIFIC CONTEXT ───────────────────────────────────────────────────────────────
+ *
+ *  Acute Mountain Sickness (AMS) affects approximately 25–50% of individuals
+ *  ascending above 2,500 meters, with 1–2% progressing to severe conditions
+ *  such as High-Altitude Cerebral Edema (HACE).
+ *
+ *  Clinical research indicates that objective physiological and behavioral markers
+ *  often precede subjective symptoms by 30–60 minutes. This window is critical
+ *  for preventive intervention.
+ *
+ *  Unlike conventional altitude trackers that passively display elevation,
+ *  S.H.E.R.P.A. integrates environmental and motion-derived indicators to surface
+ *  early warning patterns in real time.
+ *
+ * ── RTOS ARCHITECTURE ────────────────────────────────────────────────────────────────
+ *
+ *  ┌─────────────────────┬──────────┬─────────┬──────────────────────────────────────┐
+ *  │ Task                │ Priority │ Period  │ Responsibility                       │
+ *  ├─────────────────────┼──────────┼─────────┼──────────────────────────────────────┤
+ *  │ TaskSensorMPU       │    5     │  10 ms  │ DMP polling, gait, sway, alert logic │
+ *  │ TaskProcessAlert    │    4     │  20 ms  │ Buzzer toggling, alert expiry         │
+ *  │ TaskSensorBMP       │    3     │ 100 ms  │ Altitude LPF, vertical speed, status │
+ *  │ TaskGestureComm     │    2     │  50 ms  │ Gesture dismiss, Serial comms        │
+ *  │ TaskDisplay         │    1     │ 100 ms  │ Screen cycling (Gait/Altitude/Alert) │
+ *  └─────────────────────┴──────────┴─────────┴──────────────────────────────────────┘
+ *
+ *  Shared State Protection : Single mutex (xSharedMutex) guards all shared variables
+ *  Blocking Calls          : All delay() replaced with vTaskDelayUntil()
+ *  Timing Integrity        : All millis()-based logic preserved inside tasks
+ *
+ * ── DEVELOPMENT NOTES ────────────────────────────────────────────────────────────────
+ *
+ *  - All signal processing performed onboard
+ *  - Low-pass filtering applied to altitude and ascent rate
+ *  - Event-based alerts prioritized over raw data display
+ *  - Designed for low cognitive load in hypoxic environments
+ *  - FreeRTOS port maintains 100% functional parity with original implementation
+ *
+ * Date:           December 2025 (FreeRTOS Port)
+ * ======================================================================================
+ */
 
-  Component:      Multisensor Monitoring & Early-Risk Alert System (FreeRTOS Edition)
-  Focus:          Gait irregularity, sway detection, ascent profiling,
-                  and contextual alerts related to Acute Mountain Sickness (AMS)
 
-  HARDWARE & INTERFACES (MYOSA PLATFORM)
-  IMU Sensor:     MPU6050 (6-DOF Accelerometer + Gyroscope) — I2C 0x69
-  Barometric:     BMP180 (Bosch Barometric Pressure Sensor)  — I2C 0x77
-  Display:        SSD1306 OLED Display (128×64)              — I2C 0x3C
-  Gesture Sensor: APDS9960 (Gesture / Proximity / Light)     — I2C 0x39
-  Alert Output:   Active Buzzer (GPIO-controlled)
-
-  Architecture:   FreeRTOS tasks replacing Arduino loop()
-  Date:           December 2025 (RTOS port)
-*/
-
+ 
 // ─────────────────────────────────────────────
 //  INCLUDES
 // ─────────────────────────────────────────────
