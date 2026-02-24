@@ -104,6 +104,29 @@ void setup() {
         for(;;);
     }
 
+  display.clearDisplay();
+  display.setTextColor(WHITE);
+
+  // Top Decorative Line
+  display.drawLine(0, 8, 127, 8, WHITE);
+
+  // Main Title
+  display.setTextSize(3);
+  display.setCursor(8, 18);  
+  display.print("SHERPA");
+
+  // Subtitle
+  display.setTextSize(1);
+  display.setCursor(8, 52);
+  display.print("PROJECT S.H.E.R.P.A.");
+
+  // Bottom Decorative Line
+  display.drawLine(0, 63, 127, 63, WHITE);
+
+  display.display();
+
+  delay(1500);
+
     display.clearDisplay();
     display.setTextSize(1);
     display.setTextColor(WHITE);
