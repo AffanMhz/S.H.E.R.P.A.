@@ -9,8 +9,8 @@ LightProximityAndGesture Lpg;
 
 /* Variables for "Back and Forth" detection */
 unsigned long lastGestureTime = 0;
-int firstGesture = -1; // -1 means no gesture has been recorded yet
-const unsigned long GESTURE_TIMEOUT = 2000; // Time in milliseconds (2 seconds) to complete the return swipe
+String firstGesture = ""; // An empty string means no gesture has been recorded yet
+const unsigned long GESTURE_TIMEOUT = 2000; // Time in milliseconds (2 seconds)
 
 void setup() {
   /* Setting up communication */
@@ -53,25 +53,28 @@ void loop() {
   /* Check if there is gesture data available */
   if(Lpg.ping())
   {
-    // Capture the gesture into a variable. 
-    // NOTE: Replace DIR_LEFT and DIR_RIGHT if your specific library uses different names 
-    // (e.g., GESTURE_LEFT or simply 'L').
-    int currentGesture = Lpg.getGesture(); 
+    // Capture the gesture as a String
+    String currentGesture = String(Lpg.getGesture()); 
     
-    // We only care about Left and Right swipes for a "back and forth" motion
-    if (currentGesture == DIR_LEFT || currentGesture == DIR_RIGHT) {
+    // Print the gesture to the Serial Monitor so we can see exactly what text it uses
+    Serial.print("Gesture detected: ");
+    Serial.println(currentGesture);
+    
+    // We only care about Left and Right swipes for a "back and forth" motion.
+    // NOTE: If your sensor outputs "Left" instead of "LEFT", change the text below!
+    if (currentGesture == "LEFT" || currentGesture == "RIGHT" || currentGesture == "Left" || currentGesture == "Right") {
       
       unsigned long currentTime = millis();
       
       // Step 1: Detect the first wave
-      if (firstGesture == -1) {
+      if (firstGesture == "") {
         firstGesture = currentGesture;
         lastGestureTime = currentTime;
         Serial.println("First wave detected. Waiting for return wave...");
       } 
       // Step 2: Check for the return wave
       else {
-        // Did the return wave happen within the 2-second time limit?
+        // Did the return wave happen within the time limit?
         if (currentTime - lastGestureTime <= GESTURE_TIMEOUT) {
           
           // Is it the opposite direction of the first wave?
@@ -84,9 +87,9 @@ void loop() {
             digitalWrite(BUZZER_PIN, LOW);
             
             // Reset the gesture state so it can happen again
-            firstGesture = -1; 
+            firstGesture = ""; 
           } else {
-            // They swiped the same direction twice; restart the timer
+            // Swiped the same direction twice; restart the timer
             lastGestureTime = currentTime;
           }
         } else {
@@ -100,8 +103,8 @@ void loop() {
   }
   
   // Step 3: Automatically clear the memory if too much time passes with no second wave
-  if (firstGesture != -1 && (millis() - lastGestureTime > GESTURE_TIMEOUT)) {
-    firstGesture = -1;
+  if (firstGesture != "" && (millis() - lastGestureTime > GESTURE_TIMEOUT)) {
+    firstGesture = "";
     Serial.println("Timeout: Gesture reset.");
   }
 }
